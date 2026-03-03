@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { Flame, Trophy, Share2, X } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
@@ -38,9 +39,10 @@ export function ShareCard({ onClose }: ShareCardProps) {
     }
   };
 
-  return (
+  return createPortal(
     <motion.div
-      className="fixed inset-0 z-50 flex items-end justify-center px-4 pb-6"
+      className="fixed inset-0 z-50 flex items-end justify-center px-4"
+      style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
       style={{
         background: "hsl(222 47% 4% / 0.85)",
         backdropFilter: "blur(8px)",
@@ -165,6 +167,7 @@ export function ShareCard({ onClose }: ShareCardProps) {
           </motion.button>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }

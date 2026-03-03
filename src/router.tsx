@@ -3,7 +3,7 @@ import { AppLayout } from "./layouts/AppLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { TrophyRoomPage } from "./pages/TrophyRoomPage";
 import { StatsPage } from "./pages/StatsPage";
-import { StorePage } from "./pages/StorePage";
+import StorePage from "./pages/StorePage";
 
 const rootRoute = createRootRoute({
   component: () => (

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAppStore } from "../store/useAppStore";
-import { MascotSVG } from "./MascotSVG";
+import { CharacterSVG } from "./CharacterSVG";
 import { Flame } from "lucide-react";
 
 export function OnboardingScreen() {
@@ -51,7 +51,7 @@ export function OnboardingScreen() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         >
-          <MascotSVG mood="neutral" size={130} />
+          <CharacterSVG mood="neutral" size={90} />
         </motion.div>
 
         {/* Pitch */}

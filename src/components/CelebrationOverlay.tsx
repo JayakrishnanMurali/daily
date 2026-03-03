@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppStore } from "../store/useAppStore";
-import { MascotSVG } from "./MascotSVG";
+import { CharacterSVG } from "./CharacterSVG";
 import { TrophySVG } from "./TrophySVG";
 import { TROPHY_DEFINITIONS } from "../lib/trophyUtils";
 import { playCelebrationSound, playTrophySound } from "../lib/audioUtils";
@@ -44,8 +44,10 @@ function ConfettiParticle({ index }: { index: number }) {
 }
 
 export function CelebrationOverlay() {
-  const { dismissCelebration, newlyUnlockedTrophies, currentStreak, clearNewTrophies } =
-    useAppStore();
+  const {
+    dismissCelebration, newlyUnlockedTrophies, currentStreak, clearNewTrophies,
+    skinColor, equippedEyes, equippedMouth, equippedHair, equippedOutfit, equippedHat, equippedAccessory,
+  } = useAppStore();
 
   useEffect(() => {
     playCelebrationSound();
@@ -83,7 +85,17 @@ export function CelebrationOverlay() {
           animate={{ y: [0, -12, 0], scale: [1, 1.05, 1] }}
           transition={{ duration: 0.6, repeat: 3, ease: "easeInOut" }}
         >
-          <MascotSVG mood="celebrating" size={130} />
+          <CharacterSVG
+            mood="celebrating"
+            size={90}
+            skinColor={skinColor}
+            equippedEyes={equippedEyes}
+            equippedMouth={equippedMouth}
+            equippedHair={equippedHair}
+            equippedOutfit={equippedOutfit}
+            equippedHat={equippedHat}
+            equippedAccessory={equippedAccessory}
+          />
         </motion.div>
 
         {/* Streak number */}

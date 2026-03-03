@@ -14,18 +14,18 @@ import {
   Share2,
 } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
-import { MascotSVG, type MascotMood } from "../components/MascotSVG";
+import { CharacterSVG, type AvatarMood } from "../components/CharacterSVG";
 import { FlameDisplay } from "../components/FlameDisplay";
-import { AvatarFrame } from "../components/AvatarFrame";
 import { ShareCard } from "../components/ShareCard";
 import { WeekendWager } from "../components/WeekendWager";
 import { getCurrentHour } from "../lib/dateUtils";
+import { BG_DASHBOARD_GRADIENTS } from "./StorePage";
 
-function getMascotMood(
+function getAvatarMood(
   todayCompleted: boolean,
   currentStreak: number,
   hearts: number
-): MascotMood {
+): AvatarMood {
   if (hearts === 0) return "sad";
   if (todayCompleted) return "celebrating";
   const hour = getCurrentHour();
@@ -284,17 +284,14 @@ function DailyTaskCard() {
 }
 
 export function DashboardPage() {
-  const { currentStreak, todayCompleted, hearts, totalXp, longestStreak, equippedFrame, equippedAura, equippedBackdrop } =
-    useAppStore();
+  const {
+    currentStreak, todayCompleted, hearts, totalXp, longestStreak,
+    skinColor, equippedEyes, equippedMouth, equippedHair,
+    equippedOutfit, equippedHat, equippedAccessory, equippedScene,
+  } = useAppStore();
 
-  const BACKDROP_GRADIENTS: Record<string, string> = {
-    bg_ember:   "radial-gradient(ellipse at 50% 60%, hsl(38 95% 52% / 0.18) 0%, hsl(25 90% 45% / 0.08) 55%, transparent 80%)",
-    bg_cosmos:  "radial-gradient(ellipse at 50% 60%, hsl(265 70% 40% / 0.22) 0%, hsl(240 60% 20% / 0.1) 55%, transparent 80%)",
-    bg_aurora:  "radial-gradient(ellipse at 50% 60%, hsl(160 70% 45% / 0.18) 0%, hsl(180 60% 35% / 0.08) 55%, transparent 80%)",
-    bg_inferno: "radial-gradient(ellipse at 50% 60%, hsl(0 80% 50% / 0.22)  0%, hsl(20 90% 40% / 0.1) 55%, transparent 80%)",
-  };
   const [showShare, setShowShare] = useState(false);
-  const mascotMood = getMascotMood(todayCompleted, currentStreak, hearts);
+  const avatarMood = getAvatarMood(todayCompleted, currentStreak, hearts);
   const hour = getCurrentHour();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
@@ -322,32 +319,40 @@ export function DashboardPage() {
 
       <p className="text-xs text-muted-foreground font-medium">{greeting}</p>
 
-      {/* Mascot + Streak */}
+      {/* Avatar + Streak */}
       <div className="relative flex flex-col items-center gap-2 py-2">
-        {/* Backdrop gradient */}
-        {equippedBackdrop && (
+        {/* Scene background gradient */}
+        {equippedScene && (
           <div
             className="absolute inset-0 pointer-events-none rounded-3xl"
-            style={{ background: BACKDROP_GRADIENTS[equippedBackdrop] }}
+            style={{ background: BG_DASHBOARD_GRADIENTS[equippedScene] }}
           />
         )}
         <motion.div
           animate={
-            mascotMood === "celebrating" ? { y: [0, -8, 0] }
-              : mascotMood === "sleeping" ? { rotate: [0, 2, -2, 0] }
-              : mascotMood === "anxious" ? { x: [0, -2, 2, 0] }
+            avatarMood === "celebrating" ? { y: [0, -8, 0] }
+              : avatarMood === "sleeping"   ? { rotate: [0, 2, -2, 0] }
+              : avatarMood === "anxious"    ? { x: [0, -2, 2, 0] }
               : {}
           }
           transition={
-            mascotMood === "celebrating" ? { duration: 0.8, repeat: Infinity }
-              : mascotMood === "sleeping" ? { duration: 4, repeat: Infinity }
-              : mascotMood === "anxious" ? { duration: 0.3, repeat: Infinity }
+            avatarMood === "celebrating" ? { duration: 0.8, repeat: Infinity }
+              : avatarMood === "sleeping"   ? { duration: 4, repeat: Infinity }
+              : avatarMood === "anxious"    ? { duration: 0.3, repeat: Infinity }
               : {}
           }
         >
-          <AvatarFrame equippedFrame={equippedFrame} equippedAura={equippedAura} size={130}>
-            <MascotSVG mood={mascotMood} size={130} />
-          </AvatarFrame>
+          <CharacterSVG
+            mood={avatarMood}
+            size={100}
+            skinColor={skinColor}
+            equippedEyes={equippedEyes}
+            equippedMouth={equippedMouth}
+            equippedHair={equippedHair}
+            equippedOutfit={equippedOutfit}
+            equippedHat={equippedHat}
+            equippedAccessory={equippedAccessory}
+          />
         </motion.div>
         <StreakDisplay currentStreak={currentStreak} todayCompleted={todayCompleted} />
       </div>

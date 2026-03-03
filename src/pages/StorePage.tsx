@@ -1,249 +1,403 @@
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, CheckCircle2, Zap, Lock } from "lucide-react";
-import { useAppStore, COSMETIC_DEFINITIONS, type CosmeticId, type CosmeticCategory } from "../store/useAppStore";
+import { Zap, Check, Lock, Sparkles } from "lucide-react";
+import {
+  useAppStore,
+  COSMETIC_DEFINITIONS,
+  SKIN_COLORS,
+  type CosmeticId,
+  type CosmeticCategory,
+} from "../store/useAppStore";
+import {
+  CharacterSVG,
+  EyesPreview,
+  MouthPreview,
+  HairPreview,
+  OutfitPreview,
+  HatPreview,
+  AccPreview,
+} from "../components/CharacterSVG";
 
-const CATEGORY_LABELS: Record<CosmeticCategory, string> = {
-  frame:    "Avatar Frames",
-  aura:     "Mascot Auras",
-  backdrop: "Backdrops",
+// ─── Scene gradients used in Dashboard ─────────────────────────────────────
+export const BG_DASHBOARD_GRADIENTS: Record<string, string> = {
+  bg_ember:   "radial-gradient(ellipse at 50% 0%, hsl(38 95% 52% / 0.28) 0%, transparent 70%)",
+  bg_sunset:  "radial-gradient(ellipse at 50% 0%, hsl(20 90% 60% / 0.28) 0%, transparent 70%)",
+  bg_cosmos:  "radial-gradient(ellipse at 50% 0%, hsl(265 70% 55% / 0.28) 0%, transparent 70%)",
+  bg_aurora:  "radial-gradient(ellipse at 50% 0%, hsl(160 60% 45% / 0.26) 0%, transparent 70%)",
+  bg_inferno: "radial-gradient(ellipse at 50% 0%, hsl(0 80% 50% / 0.30) 0%, transparent 70%)",
 };
 
-const CATEGORY_DESC: Record<CosmeticCategory, string> = {
-  frame:    "Decorative rings displayed around your mascot on the Dashboard.",
-  aura:     "Ambient glow effects that radiate from behind your mascot.",
-  backdrop: "Background gradient shown behind the mascot hero area.",
-};
+// ─── Tab config ─────────────────────────────────────────────────────────────
+const TABS: { id: CosmeticCategory; label: string; emoji: string }[] = [
+  { id: "eyes",      label: "Eyes",       emoji: "👁" },
+  { id: "mouth",     label: "Mouth",      emoji: "😊" },
+  { id: "hair",      label: "Hair",       emoji: "💇" },
+  { id: "outfit",    label: "Outfit",     emoji: "👕" },
+  { id: "hat",       label: "Hat",        emoji: "🎩" },
+  { id: "accessory", label: "Items",      emoji: "🎒" },
+  { id: "scene",     label: "Scene",      emoji: "🌅" },
+];
 
-// ── Preview swatches ───────────────────────────────────────────────────────
-const COSMETIC_PREVIEWS: Record<CosmeticId, React.ReactNode> = {
-  // Frames
-  frame_ember: (
-    <div className="w-10 h-10 rounded-full" style={{ border: "2px solid hsl(38 95% 52% / 0.8)", boxShadow: "0 0 8px hsl(38 95% 52% / 0.45)" }} />
-  ),
-  frame_nature: (
-    <div className="w-10 h-10 rounded-full" style={{ border: "2.5px solid hsl(145 60% 42%)", boxShadow: "0 0 8px hsl(145 60% 42% / 0.4)" }} />
-  ),
-  frame_blaze: (
-    <motion.div
-      className="w-10 h-10 rounded-full"
-      style={{ border: "2.5px solid hsl(45 100% 58%)", boxShadow: "0 0 12px hsl(45 100% 55% / 0.65)" }}
-      animate={{ opacity: [0.65, 1, 0.65] }}
-      transition={{ duration: 1.5, repeat: Infinity }}
-    />
-  ),
-  frame_circuit: (
-    <div className="w-10 h-10 rounded-full" style={{ border: "2.5px solid hsl(188 90% 52%)", boxShadow: "0 0 10px hsl(188 90% 52% / 0.5)" }}>
-      <div className="w-full h-full rounded-full" style={{ background: "repeating-conic-gradient(hsl(188 90% 52% / 0.12) 0 15deg, transparent 15deg 30deg)" }} />
-    </div>
-  ),
-  frame_arcane: (
-    <div className="w-10 h-10 rounded-full" style={{ border: "2.5px solid hsl(265 70% 62%)", boxShadow: "0 0 12px hsl(265 70% 62% / 0.55)" }} />
-  ),
-  frame_storm: (
-    <motion.div
-      className="w-10 h-10 rounded-full"
-      style={{ border: "2.5px solid hsl(195 100% 88%)", boxShadow: "0 0 14px hsl(195 100% 80% / 0.7)" }}
-      animate={{ opacity: [0.55, 1, 0.55], boxShadow: ["0 0 8px hsl(195 100% 80% / 0.4)", "0 0 18px hsl(195 100% 80% / 0.8)", "0 0 8px hsl(195 100% 80% / 0.4)"] }}
-      transition={{ duration: 0.8, repeat: Infinity }}
-    />
-  ),
-  frame_prismatic: (
-    <motion.div
-      className="w-10 h-10 rounded-full"
-      style={{ background: "conic-gradient(hsl(38 95% 52%), hsl(265 70% 62%), hsl(200 90% 60%), hsl(145 65% 48%), hsl(38 95% 52%))" }}
-      animate={{ rotate: 360 }}
-      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-    />
-  ),
-  // Auras
-  aura_fire: (
-    <div className="w-10 h-10 rounded-full" style={{ background: "radial-gradient(circle, hsl(25 100% 50% / 0.75) 0%, transparent 70%)" }} />
-  ),
-  aura_frost: (
-    <div className="w-10 h-10 rounded-full" style={{ background: "radial-gradient(circle, hsl(200 90% 60% / 0.7) 0%, transparent 70%)" }} />
-  ),
-  aura_nature: (
-    <div className="w-10 h-10 rounded-full" style={{ background: "radial-gradient(circle, hsl(145 60% 44% / 0.7) 0%, transparent 70%)" }} />
-  ),
-  aura_blood: (
-    <motion.div
-      className="w-10 h-10 rounded-full"
-      style={{ background: "radial-gradient(circle, hsl(0 80% 50% / 0.75) 0%, transparent 70%)" }}
-      animate={{ opacity: [0.7, 1, 0.7] }}
-      transition={{ duration: 1.2, repeat: Infinity }}
-    />
-  ),
-  aura_void: (
-    <div className="w-10 h-10 rounded-full" style={{ background: "radial-gradient(circle, hsl(265 70% 55% / 0.7) 0%, transparent 70%)" }} />
-  ),
-  aura_storm: (
-    <motion.div
-      className="w-10 h-10 rounded-full"
-      style={{ background: "radial-gradient(circle, hsl(188 90% 60% / 0.75) 0%, transparent 70%)" }}
-      animate={{ scale: [0.9, 1.1, 0.9] }}
-      transition={{ duration: 0.9, repeat: Infinity }}
-    />
-  ),
-  aura_solar: (
-    <motion.div
-      className="w-10 h-10 rounded-full"
-      style={{ background: "radial-gradient(circle, hsl(50 100% 65% / 0.8) 0%, transparent 70%)" }}
-      animate={{ scale: [0.95, 1.05, 0.95] }}
-      transition={{ duration: 2, repeat: Infinity }}
-    />
-  ),
-  // Backdrops
-  bg_ember: (
-    <div className="w-10 h-10 rounded-xl" style={{ background: "radial-gradient(ellipse at center, hsl(38 95% 52% / 0.55) 0%, hsl(25 90% 40% / 0.2) 60%, transparent 100%)" }} />
-  ),
-  bg_cosmos: (
-    <div className="w-10 h-10 rounded-xl relative overflow-hidden" style={{ background: "hsl(240 50% 8%)" }}>
-      {[...Array(5)].map((_, i) => (
-        <div key={i} className="absolute rounded-full bg-white" style={{ width: 2, height: 2, top: `${15 + i * 15}%`, left: `${10 + i * 18}%`, opacity: 0.6 + i * 0.08 }} />
-      ))}
-    </div>
-  ),
-  bg_aurora: (
-    <div className="w-10 h-10 rounded-xl" style={{ background: "linear-gradient(160deg, hsl(160 70% 35% / 0.5) 0%, hsl(180 70% 40% / 0.3) 50%, hsl(200 80% 30% / 0.15) 100%)" }} />
-  ),
-  bg_inferno: (
-    <div className="w-10 h-10 rounded-xl" style={{ background: "radial-gradient(ellipse at center, hsl(0 90% 50% / 0.55) 0%, hsl(20 95% 40% / 0.3) 50%, transparent 100%)" }} />
-  ),
-};
+// ─── Mini preview renderer per category ─────────────────────────────────────
+function renderItemPreview(item: { id: CosmeticId; category: CosmeticCategory }) {
+  switch (item.category) {
+    case "eyes":      return <EyesPreview eyesId={item.id} />;
+    case "mouth":     return <MouthPreview mouthId={item.id} />;
+    case "hair":      return <HairPreview hairId={item.id} />;
+    case "outfit":    return <OutfitPreview outfitId={item.id} />;
+    case "hat":       return <HatPreview hatId={item.id} />;
+    case "accessory": return <AccPreview accId={item.id} />;
+    case "scene":     return <ScenePreview sceneId={item.id} />;
+  }
+}
 
-// ── Card ───────────────────────────────────────────────────────────────────
-function CosmeticCard({ id }: { id: CosmeticId }) {
-  const {
-    totalXp, ownedCosmetics,
-    equippedFrame, equippedAura, equippedBackdrop,
-    purchaseCosmetic, equipCosmetic,
-  } = useAppStore();
-
-  const def = COSMETIC_DEFINITIONS.find((c) => c.id === id)!;
-  const isOwned = ownedCosmetics.includes(id);
-  const isEquipped = equippedFrame === id || equippedAura === id || equippedBackdrop === id;
-  const canAfford = totalXp >= def.cost;
-
-  const handleAction = () => {
-    if (!isOwned) {
-      purchaseCosmetic(id);
-    } else {
-      const current =
-        def.category === "frame"    ? equippedFrame :
-        def.category === "aura"     ? equippedAura  : equippedBackdrop;
-      equipCosmetic(def.category, current === id ? null : id);
-    }
-  };
-
+function ScenePreview({ sceneId }: { sceneId: string }) {
+  const gradient = BG_DASHBOARD_GRADIENTS[sceneId] ?? "";
   return (
-    <motion.div
-      className="flex items-center gap-3 rounded-2xl p-3 border transition-all"
+    <div
+      className="w-12 h-12 rounded-xl"
       style={{
-        background: isEquipped ? "hsl(222 44% 10%)" : "hsl(222 44% 7%)",
-        borderColor: isEquipped ? "hsl(38 95% 52% / 0.4)" : "hsl(0 0% 100% / 0.06)",
-        boxShadow: isEquipped ? "0 0 16px hsl(38 95% 52% / 0.1)" : "none",
+        background: gradient || "hsl(222 47% 10%)",
+        border: "1.5px solid hsl(222 47% 18%)",
       }}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <div className="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-secondary/60">
-        {COSMETIC_PREVIEWS[id]}
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <p className="text-sm font-bold text-foreground">{def.label}</p>
-          {isEquipped && (
-            <span className="text-[9px] font-black uppercase tracking-wider text-amber px-1.5 py-0.5 rounded-full bg-amber/10 border border-amber/20">
-              On
-            </span>
-          )}
-        </div>
-        <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{def.description}</p>
-      </div>
-
-      <motion.button
-        onClick={handleAction}
-        disabled={!isOwned && !canAfford}
-        whileTap={{ scale: 0.93 }}
-        className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-          isEquipped
-            ? "bg-secondary text-muted-foreground border border-border"
-            : isOwned
-            ? "bg-primary/15 text-primary border border-primary/30"
-            : canAfford
-            ? "bg-primary text-primary-foreground"
-            : "bg-secondary/50 text-muted-foreground/50 cursor-not-allowed"
-        }`}
-      >
-        {isEquipped ? (
-          "Remove"
-        ) : isOwned ? (
-          <><CheckCircle2 size={12} /> Equip</>
-        ) : canAfford ? (
-          <><Zap size={11} className="fill-primary-foreground" /> {def.cost}</>
-        ) : (
-          <><Lock size={11} /> {def.cost}</>
-        )}
-      </motion.button>
-    </motion.div>
+    />
   );
 }
 
-// ── Page ───────────────────────────────────────────────────────────────────
-export function StorePage() {
-  const { totalXp, ownedCosmetics } = useAppStore();
-  const categories: CosmeticCategory[] = ["frame", "aura", "backdrop"];
+// ─── Cosmetic item card ─────────────────────────────────────────────────────
+interface CosmeticItemCardProps {
+  itemId: CosmeticId;
+  category: CosmeticCategory;
+  label: string;
+  cost: number;
+  isEquipped: boolean;
+  isOwned: boolean;
+  canAfford: boolean;
+  onHoverStart: () => void;
+  onHoverEnd: () => void;
+  onAction: () => void;
+}
+
+function CosmeticItemCard({
+  itemId,
+  category,
+  label,
+  cost,
+  isEquipped,
+  isOwned,
+  canAfford,
+  onHoverStart,
+  onHoverEnd,
+  onAction,
+}: CosmeticItemCardProps) {
+  const borderColor = isEquipped
+    ? "border-amber-400/60"
+    : isOwned
+    ? "border-white/10"
+    : "border-white/6";
+
+  const bgColor = isEquipped
+    ? "bg-amber-400/10"
+    : "bg-white/[0.04]";
 
   return (
-    <div className="flex flex-col px-4 py-5 gap-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
-            <ShoppingBag size={22} className="text-amber" />
-            Store
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Cosmetics only — no gameplay advantage.</p>
+    <motion.button
+      className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-colors relative ${borderColor} ${bgColor}`}
+      onPointerEnter={onHoverStart}
+      onPointerLeave={onHoverEnd}
+      onClick={onAction}
+      whileTap={{ scale: 0.95 }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      {/* Equipped badge */}
+      {isEquipped && (
+        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center">
+          <Check size={9} strokeWidth={3} className="text-black" />
         </div>
-        <div className="flex items-center gap-1.5 bg-secondary border border-border rounded-full px-3 py-1.5">
-          <Zap size={13} className="text-amber fill-amber" />
-          <span className="text-sm font-black text-foreground tabular-nums">{totalXp.toLocaleString()}</span>
-          <span className="text-xs text-muted-foreground">XP</span>
-        </div>
+      )}
+
+      {/* Item preview */}
+      <div className="w-12 h-12 flex items-center justify-center">
+        {renderItemPreview({ id: itemId, category })}
       </div>
 
-      {/* Owned count */}
-      <div className="flex items-center gap-2 bg-secondary/50 border border-border/40 rounded-2xl px-4 py-3">
-        <CheckCircle2 size={14} className="text-amber shrink-0" />
-        <p className="text-xs text-muted-foreground">
-          <span className="font-bold text-foreground">{ownedCosmetics.length}</span> of{" "}
-          {COSMETIC_DEFINITIONS.length} cosmetics owned
-        </p>
-      </div>
+      {/* Label */}
+      <span className="text-[10px] font-semibold text-white/70 truncate w-full text-center leading-tight">
+        {label}
+      </span>
 
-      {/* Categories */}
-      {categories.map((category) => {
-        const items = COSMETIC_DEFINITIONS.filter((c) => c.category === category);
-        return (
-          <div key={category} className="space-y-3">
-            <div>
-              <h2 className="text-sm font-black text-foreground uppercase tracking-wide">
-                {CATEGORY_LABELS[category]}
-              </h2>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{CATEGORY_DESC[category]}</p>
+      {/* Action area */}
+      {isEquipped ? (
+        <span className="text-[9px] font-black text-amber-400 tracking-wide">ON</span>
+      ) : isOwned ? (
+        <span className="text-[9px] text-white/40 font-medium">EQUIP</span>
+      ) : canAfford ? (
+        <span className="flex items-center gap-0.5 text-[9px] font-bold text-amber-400">
+          <Zap size={8} fill="currentColor" />
+          {cost}
+        </span>
+      ) : (
+        <span className="flex items-center gap-0.5 text-[9px] font-medium text-white/25">
+          <Lock size={8} />
+          {cost}
+        </span>
+      )}
+    </motion.button>
+  );
+}
+
+// ─── "None" / default option card ───────────────────────────────────────────
+function DefaultItemCard({
+  category,
+  isEquipped,
+  onEquip,
+}: {
+  category: CosmeticCategory;
+  isEquipped: boolean;
+  onEquip: () => void;
+}) {
+  return (
+    <motion.button
+      className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-colors relative ${
+        isEquipped ? "border-amber-400/60 bg-amber-400/10" : "border-white/6 bg-white/[0.04]"
+      }`}
+      onClick={onEquip}
+      whileTap={{ scale: 0.95 }}
+    >
+      {isEquipped && (
+        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center">
+          <Check size={9} strokeWidth={3} className="text-black" />
+        </div>
+      )}
+      <div className="w-12 h-12 flex items-center justify-center rounded-xl border border-dashed border-white/20">
+        <span className="text-white/25 text-lg">∅</span>
+      </div>
+      <span className="text-[10px] font-semibold text-white/40 truncate w-full text-center">
+        None
+      </span>
+      <span className="text-[9px] text-white/25">FREE</span>
+    </motion.button>
+  );
+}
+
+// ─── Skin color picker ──────────────────────────────────────────────────────
+function SkinColorPicker({ currentSkinKey, onSelect }: {
+  currentSkinKey: string;
+  onSelect: (key: string) => void;
+}) {
+  return (
+    <div className="flex items-center justify-center gap-2 flex-wrap px-2">
+      {Object.entries(SKIN_COLORS).map(([key, { fill, label }]) => (
+        <button
+          key={key}
+          title={label}
+          onClick={() => onSelect(key)}
+          className="relative rounded-full transition-transform active:scale-90"
+          style={{ width: 28, height: 28 }}
+        >
+          <div
+            className="w-full h-full rounded-full"
+            style={{ background: fill, boxShadow: currentSkinKey === key ? `0 0 0 2.5px hsl(222 47% 8%), 0 0 0 4.5px ${fill}` : undefined }}
+          />
+          {currentSkinKey === key && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Check size={12} strokeWidth={3} className="text-black/60" />
             </div>
-            <AnimatePresence>
-              <div className="space-y-2">
-                {items.map((c) => <CosmeticCard key={c.id} id={c.id} />)}
-              </div>
-            </AnimatePresence>
-          </div>
-        );
-      })}
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
 
-      <div className="h-2" />
+// ─── Main page ──────────────────────────────────────────────────────────────
+export default function StorePage() {
+  const {
+    totalXp,
+    ownedCosmetics,
+    skinColor,
+    equippedEyes,
+    equippedMouth,
+    equippedHair,
+    equippedOutfit,
+    equippedHat,
+    equippedAccessory,
+    equippedScene,
+    purchaseCosmetic,
+    equipCosmetic,
+    setSkinColor,
+  } = useAppStore();
+
+  const [activeCategory, setActiveCategory] = useState<CosmeticCategory>("eyes");
+  const [hoverPreviewId, setHoverPreviewId] = useState<CosmeticId | null>(null);
+  const [hoverCategory, setHoverCategory] = useState<CosmeticCategory | null>(null);
+
+  // Build preview overrides from hover
+  const previewEyes      = hoverCategory === "eyes"      ? (hoverPreviewId ?? equippedEyes)      : equippedEyes;
+  const previewMouth     = hoverCategory === "mouth"     ? (hoverPreviewId ?? equippedMouth)     : equippedMouth;
+  const previewHair      = hoverCategory === "hair"      ? (hoverPreviewId ?? equippedHair)      : equippedHair;
+  const previewOutfit    = hoverCategory === "outfit"    ? (hoverPreviewId ?? equippedOutfit)    : equippedOutfit;
+  const previewHat       = hoverCategory === "hat"       ? (hoverPreviewId ?? equippedHat)       : equippedHat;
+  const previewAccessory = hoverCategory === "accessory" ? (hoverPreviewId ?? equippedAccessory) : equippedAccessory;
+
+  const categoryItems = COSMETIC_DEFINITIONS.filter((d) => d.category === activeCategory);
+
+  function getEquippedForCategory(category: CosmeticCategory): CosmeticId | null {
+    switch (category) {
+      case "eyes":      return equippedEyes;
+      case "mouth":     return equippedMouth;
+      case "hair":      return equippedHair;
+      case "outfit":    return equippedOutfit;
+      case "hat":       return equippedHat;
+      case "accessory": return equippedAccessory;
+      case "scene":     return equippedScene;
+    }
+  }
+
+  function handleItemAction(itemId: CosmeticId, category: CosmeticCategory, isOwned: boolean) {
+    if (!isOwned) {
+      purchaseCosmetic(itemId);
+      // Auto-equip after purchase
+      setTimeout(() => {
+        if (useAppStore.getState().ownedCosmetics.includes(itemId)) {
+          equipCosmetic(category, itemId);
+        }
+      }, 50);
+    } else {
+      const currentlyEquipped = getEquippedForCategory(category);
+      if (currentlyEquipped === itemId) {
+        equipCosmetic(category, null); // Unequip
+      } else {
+        equipCosmetic(category, itemId);
+      }
+    }
+  }
+
+  const activeTabSceneGradient = equippedScene
+    ? BG_DASHBOARD_GRADIENTS[equippedScene]
+    : undefined;
+
+  return (
+    <div className="flex flex-col min-h-full pb-safe">
+
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-5 pb-3">
+        <div>
+          <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+            <Sparkles size={18} className="text-amber-400" />
+            Avatar Lab
+          </h1>
+          <p className="text-xs text-white/40 mt-0.5">Make it yours</p>
+        </div>
+        <div className="flex items-center gap-1.5 bg-amber-400/10 border border-amber-400/25 rounded-full px-3 py-1.5">
+          <Zap size={12} fill="hsl(38 95% 52%)" className="text-amber-400" />
+          <span className="text-sm font-black text-amber-400">{totalXp.toLocaleString()}</span>
+        </div>
+      </div>
+
+      {/* Live character preview */}
+      <div
+        className="flex items-center justify-center pt-2 pb-4 mx-4 rounded-3xl"
+        style={{ background: activeTabSceneGradient ?? "hsl(222 47% 6%)", border: "1px solid hsl(222 47% 12%)", minHeight: 200 }}
+      >
+        <motion.div
+          key={`${previewEyes}-${previewMouth}-${previewHair}-${previewOutfit}-${previewHat}-${previewAccessory}-${skinColor}`}
+          initial={{ scale: 0.92, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+        >
+          <CharacterSVG
+            mood="neutral"
+            size={110}
+            skinColor={skinColor}
+            equippedEyes={previewEyes}
+            equippedMouth={previewMouth}
+            equippedHair={previewHair}
+            equippedOutfit={previewOutfit}
+            equippedHat={previewHat}
+            equippedAccessory={previewAccessory}
+          />
+        </motion.div>
+      </div>
+
+      {/* Skin color picker */}
+      <div className="px-4 py-3">
+        <p className="text-[10px] font-semibold text-white/35 uppercase tracking-widest mb-2.5 text-center">
+          Skin Color
+        </p>
+        <SkinColorPicker currentSkinKey={skinColor} onSelect={setSkinColor} />
+      </div>
+
+      {/* Tab navigation */}
+      <div className="px-4 pb-1">
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveCategory(tab.id)}
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                activeCategory === tab.id
+                  ? "bg-amber-400 text-black"
+                  : "bg-white/[0.06] text-white/50 hover:bg-white/10"
+              }`}
+            >
+              <span>{tab.emoji}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Item grid */}
+      <div className="px-4 pt-2 pb-6">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeCategory}
+            className="grid grid-cols-3 gap-2.5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            {/* "None" option — always first */}
+            <DefaultItemCard
+              category={activeCategory}
+              isEquipped={getEquippedForCategory(activeCategory) === null}
+              onEquip={() => equipCosmetic(activeCategory, null)}
+            />
+
+            {categoryItems.map((item, index) => {
+              const isOwned   = ownedCosmetics.includes(item.id);
+              const isEquipped = getEquippedForCategory(activeCategory) === item.id;
+              const canAfford  = totalXp >= item.cost;
+
+              return (
+                <CosmeticItemCard
+                  key={item.id}
+                  itemId={item.id}
+                  category={item.category}
+                  label={item.label}
+                  cost={item.cost}
+                  isEquipped={isEquipped}
+                  isOwned={isOwned}
+                  canAfford={canAfford}
+                  onHoverStart={() => {
+                    setHoverPreviewId(item.id);
+                    setHoverCategory(item.category);
+                  }}
+                  onHoverEnd={() => {
+                    setHoverPreviewId(null);
+                    setHoverCategory(null);
+                  }}
+                  onAction={() => handleItemAction(item.id, item.category, isOwned)}
+                />
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

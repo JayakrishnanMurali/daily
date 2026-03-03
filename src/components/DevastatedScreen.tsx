@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAppStore } from "../store/useAppStore";
-import { MascotSVG } from "./MascotSVG";
+import { CharacterSVG } from "./CharacterSVG";
 import { playDevastationSound } from "../lib/audioUtils";
 import { useEffect } from "react";
 
@@ -9,7 +9,7 @@ const REQUIRED_STATEMENT = "I will not skip a day again";
 
 export function DevastatedScreen() {
   const [inputValue, setInputValue] = useState("");
-  const { exitDevastatedMode } = useAppStore();
+  const { exitDevastatedMode, skinColor, equippedEyes, equippedMouth, equippedHair, equippedOutfit, equippedHat, equippedAccessory } = useAppStore();
 
   useEffect(() => {
     playDevastationSound();
@@ -48,7 +48,17 @@ export function DevastatedScreen() {
           animate={{ y: [0, -4, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          <MascotSVG mood="sad" size={120} />
+          <CharacterSVG
+            mood="sad"
+            size={80}
+            skinColor={skinColor}
+            equippedEyes={equippedEyes}
+            equippedMouth={equippedMouth}
+            equippedHair={equippedHair}
+            equippedOutfit={equippedOutfit}
+            equippedHat={equippedHat}
+            equippedAccessory={equippedAccessory}
+          />
         </motion.div>
 
         {/* Streak broken display */}

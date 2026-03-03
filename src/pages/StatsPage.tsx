@@ -1,5 +1,7 @@
-import { motion } from "framer-motion";
-import { Flame, Zap, Calendar, TrendingUp, Trophy } from "lucide-react";
+import { createPortal } from "react-dom";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Flame, Zap, Calendar, TrendingUp, Trophy, Trash2, AlertTriangle } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
 import { getLastNDates, formatDateLabel } from "../lib/dateUtils";
 
@@ -169,9 +171,86 @@ function RecentHistory() {
   );
 }
 
+function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
+  const { resetAccount } = useAppStore();
+
+  const handleConfirm = () => {
+    resetAccount();
+    onClose();
+  };
+
+  return createPortal(
+    <motion.div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{ background: "hsl(222 47% 4% / 0.85)", backdropFilter: "blur(8px)" }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="w-full max-w-md rounded-t-3xl p-6 space-y-5"
+        style={{
+          background: "hsl(222 44% 7%)",
+          border: "1px solid hsl(0 60% 40% / 0.3)",
+          borderBottom: "none",
+          paddingBottom: "calc(env(safe-area-inset-bottom) + 1.5rem)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 80, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
+        {/* Warning icon + title */}
+        <div className="flex flex-col items-center gap-3 pt-2">
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center"
+            style={{ background: "hsl(0 60% 30% / 0.3)", border: "1px solid hsl(0 60% 40% / 0.4)" }}
+          >
+            <AlertTriangle size={26} style={{ color: "hsl(0 70% 60%)" }} />
+          </div>
+          <h2 className="text-lg font-black text-foreground">Delete all data?</h2>
+        </div>
+
+        {/* Warning text */}
+        <p className="text-sm text-muted-foreground text-center leading-relaxed">
+          This will permanently erase your streak, XP, trophies, cosmetics, and all history.{" "}
+          <span className="text-foreground font-semibold">This cannot be undone.</span>
+        </p>
+
+        {/* Actions */}
+        <div className="flex flex-col gap-3 pt-1">
+          <motion.button
+            onClick={handleConfirm}
+            whileTap={{ scale: 0.97 }}
+            className="w-full py-3.5 rounded-2xl font-bold text-sm"
+            style={{
+              background: "hsl(0 60% 28%)",
+              border: "1px solid hsl(0 60% 40% / 0.5)",
+              color: "hsl(0 70% 80%)",
+            }}
+          >
+            Yes, delete everything
+          </motion.button>
+          <motion.button
+            onClick={onClose}
+            whileTap={{ scale: 0.97 }}
+            className="w-full py-3.5 rounded-2xl font-semibold text-sm bg-secondary text-muted-foreground border border-border"
+          >
+            Cancel
+          </motion.button>
+        </div>
+      </motion.div>
+    </motion.div>,
+    document.body
+  );
+}
+
 export function StatsPage() {
   const { currentStreak, longestStreak, totalXp, hearts, history, unlockedTrophies } =
     useAppStore();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const completedDays = history.filter((r) => r.completed).length;
   const completionRate =
@@ -234,7 +313,26 @@ export function StatsPage() {
       {/* Recent history list */}
       <RecentHistory />
 
+      {/* Delete account */}
+      <div className="pt-4 border-t border-border/30">
+        <motion.button
+          onClick={() => setShowDeleteConfirm(true)}
+          whileTap={{ scale: 0.97 }}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold border border-border/40 transition-colors"
+          style={{ color: "hsl(0 60% 55%)" }}
+        >
+          <Trash2 size={14} />
+          Delete account &amp; all data
+        </motion.button>
+      </div>
+
       <div className="h-2" />
+
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <DeleteAccountSheet onClose={() => setShowDeleteConfirm(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
