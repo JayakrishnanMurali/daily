@@ -42,8 +42,8 @@ export function ShareCard({ onClose }: ShareCardProps) {
   return createPortal(
     <motion.div
       className="fixed inset-0 z-50 flex items-end justify-center px-4"
-      style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
       style={{
+        paddingBottom: "calc(env(safe-area-inset-bottom) + 1.5rem)",
         background: "hsl(222 47% 4% / 0.85)",
         backdropFilter: "blur(8px)",
       }}

@@ -165,3 +165,11 @@
 *::-webkit-scrollbar {
   display: none;               /* Chrome / Safari / newer Edge */
 }
+
+/* ─── Prevent iOS auto-zoom on input focus ────────────────────────────────
+   iOS Safari zooms the viewport whenever a focused input has font-size
+   below 16px. Declaring this outside @layer means it wins over any
+   Tailwind utility (text-sm etc.) that lives inside a cascade layer.     */
+input, textarea, select {
+  font-size: 16px !important;
+}
