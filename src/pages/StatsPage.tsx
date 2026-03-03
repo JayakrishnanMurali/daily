@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "@tanstack/react-router";
 import { Flame, Zap, Calendar, TrendingUp, Trophy, Trash2, AlertTriangle } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
 import { getLastNDates, formatDateLabel } from "../lib/dateUtils";
@@ -171,11 +172,9 @@ function RecentHistory() {
   );
 }
 
-function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
-  const { resetAccount } = useAppStore();
-
+function DeleteAccountSheet({ onConfirm, onClose }: { onConfirm: () => void; onClose: () => void }) {
   const handleConfirm = () => {
-    resetAccount();
+    onConfirm();
     onClose();
   };
 
@@ -248,9 +247,15 @@ function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
 }
 
 export function StatsPage() {
-  const { currentStreak, longestStreak, totalXp, hearts, history, unlockedTrophies } =
+  const { currentStreak, longestStreak, totalXp, hearts, history, unlockedTrophies, resetAccount } =
     useAppStore();
+  const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDeleteConfirm = () => {
+    resetAccount();
+    navigate({ to: "/" });
+  };
 
   const completedDays = history.filter((r) => r.completed).length;
   const completionRate =
@@ -330,7 +335,10 @@ export function StatsPage() {
 
       <AnimatePresence>
         {showDeleteConfirm && (
-          <DeleteAccountSheet onClose={() => setShowDeleteConfirm(false)} />
+          <DeleteAccountSheet
+            onConfirm={handleDeleteConfirm}
+            onClose={() => setShowDeleteConfirm(false)}
+          />
         )}
       </AnimatePresence>
     </div>
