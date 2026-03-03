@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Flame, Trophy, Activity, ShoppingBag } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
@@ -9,8 +9,13 @@ import { OnboardingScreen } from "../components/OnboardingScreen";
 export function AppLayout({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const { checkDailyStreak, devastatedMode, showCelebration, hasOnboarded } = useAppStore();
+  const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => { checkDailyStreak(); }, [checkDailyStreak]);
+
+  // Reset scroll to top on every route change so pages don't inherit
+  // the previous page's scroll position (causes top-clipping on iOS PWA).
+  useEffect(() => { mainRef.current?.scrollTo({ top: 0 }); }, [pathname]);
 
   const navItems = [
     { path: "/",         label: "Daily",    icon: Flame       },
@@ -23,13 +28,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className="flex flex-col h-screen w-full max-w-md mx-auto overflow-hidden"
+      className="fixed inset-0 flex flex-col w-full max-w-md mx-auto overflow-hidden"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       {devastatedMode  && <DevastatedScreen />}
       {showCelebration && <CelebrationOverlay />}
 
-      <main className="flex-1 overflow-y-auto overscroll-contain pb-1">
+      <main ref={mainRef} className="flex-1 overflow-y-auto overscroll-contain pb-1">
         {children}
       </main>
 
