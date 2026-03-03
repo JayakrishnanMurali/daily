@@ -15,6 +15,14 @@ const server = serve({
       }
     ),
 
+    // Serve favicon
+    "/favicon.svg": new Response(await Bun.file("./public/favicon.svg").text(), {
+      headers: {
+        "Content-Type": "image/svg+xml",
+        "Cache-Control": "public, max-age=86400",
+      },
+    }),
+
     // Serve service worker
     "/sw.js": new Response(await Bun.file("./public/sw.js").text(), {
       headers: {

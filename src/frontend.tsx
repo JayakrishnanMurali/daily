@@ -8,11 +8,17 @@ import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./router";
 import "./index.css";
 
-// Inject PWA manifest link dynamically (Bun can't bundle absolute-path links in HTML)
+// Inject PWA manifest + favicon dynamically (Bun can't bundle absolute-path links in HTML)
 const manifestLink = document.createElement("link");
 manifestLink.rel = "manifest";
 manifestLink.href = "/manifest.json";
 document.head.appendChild(manifestLink);
+
+const faviconLink = document.createElement("link");
+faviconLink.rel = "icon";
+faviconLink.type = "image/svg+xml";
+faviconLink.href = "/favicon.svg";
+document.head.appendChild(faviconLink);
 
 // Register PWA service worker — production only.
 // In dev mode, unregister any stale SW so HMR works correctly.
