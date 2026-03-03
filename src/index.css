@@ -1,0 +1,44 @@
+@import "../styles/globals.css";
+
+@layer base {
+  :root {
+    @apply font-sans;
+  }
+
+  html, body, #root {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* iOS PWA: prevent rubber-band scroll */
+    overscroll-behavior: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+
+  #root {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Amber color utility (referenced in JSX as text-amber, bg-amber etc.) */
+.text-amber { color: hsl(38 95% 52%); }
+.bg-amber { background-color: hsl(38 95% 52%); }
+.fill-amber { fill: hsl(38 95% 52%); }
+.border-amber { border-color: hsl(38 95% 52%); }
+.bg-amber\/10 { background-color: hsl(38 95% 52% / 0.10); }
+.bg-amber\/15 { background-color: hsl(38 95% 52% / 0.15); }
+.bg-amber\/25 { background-color: hsl(38 95% 52% / 0.25); }
+.border-amber\/25 { border-color: hsl(38 95% 52% / 0.25); }
+.border-amber\/30 { border-color: hsl(38 95% 52% / 0.30); }
+.text-amber\/80 { color: hsl(38 95% 52% / 0.80); }
+
+@media (prefers-reduced-motion) {
+  *, ::before, ::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Daily App — Premium Dark Theme */
+:root {
+  --background: hsl(222 47% 4%);
+  --foreground: hsl(0 0% 95%);
+  --card: hsl(222 44% 7%);
+  --card-foreground: hsl(0 0% 95%);
+  --popover: hsl(222 44% 7%);
+  --popover-foreground: hsl(0 0% 95%);
+  --primary: hsl(38 95% 52%);
+  --primary-foreground: hsl(222 47% 4%);
+  --secondary: hsl(222 44% 12%);
+  --secondary-foreground: hsl(0 0% 85%);
+  --muted: hsl(222 44% 12%);
+  --muted-foreground: hsl(215 20% 50%);
+  --accent: hsl(38 95% 52%);
+  --accent-foreground: hsl(222 47% 4%);
+  --destructive: hsl(0 70% 35%);
+  --destructive-foreground: hsl(0 0% 95%);
+  --border: hsl(0 0% 100% / 0.07);
+  --input: hsl(222 44% 12%);
+  --ring: hsl(38 95% 52%);
+
+  /* Semantic app colors */
+  --amber: hsl(38 95% 52%);
+  --amber-glow: hsl(38 95% 52% / 0.25);
+  --amber-dim: hsl(38 80% 40%);
+  --heart-red: hsl(0 80% 55%);
+  --heart-red-dim: hsl(0 50% 35%);
+  --trophy-bronze: hsl(25 65% 52%);
+  --trophy-silver: hsl(220 15% 70%);
+  --trophy-gold: hsl(45 100% 55%);
+  --trophy-obsidian: hsl(260 60% 65%);
+  --devastated-bg: hsl(0 0% 6%);
+
+  --radius: 0.75rem;
+}
+
+/* Always dark mode — no light mode variant needed */
+.dark {
+  --background: hsl(222 47% 4%);
+  --foreground: hsl(0 0% 95%);
+  --card: hsl(222 44% 7%);
+  --card-foreground: hsl(0 0% 95%);
+  --popover: hsl(222 44% 7%);
+  --popover-foreground: hsl(0 0% 95%);
+  --primary: hsl(38 95% 52%);
+  --primary-foreground: hsl(222 47% 4%);
+  --secondary: hsl(222 44% 12%);
+  --secondary-foreground: hsl(0 0% 85%);
+  --muted: hsl(222 44% 12%);
+  --muted-foreground: hsl(215 20% 50%);
+  --accent: hsl(38 95% 52%);
+  --accent-foreground: hsl(222 47% 4%);
+  --destructive: hsl(0 70% 35%);
+  --destructive-foreground: hsl(0 0% 95%);
+  --border: hsl(0 0% 100% / 0.07);
+  --input: hsl(222 44% 12%);
+  --ring: hsl(38 95% 52%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    /* Force dark always */
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* iOS PWA: disable pull-to-refresh */
+    overscroll-behavior: none;
+    /* Prevent text selection on tap */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Smooth font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  }
+  /* Allow text selection in inputs */
+  input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+}
+
+/* Glow utilities */
+@layer utilities {
+  .glow-amber {
+    box-shadow: 0 0 24px var(--amber-glow), 0 0 48px hsl(38 95% 52% / 0.12);
+  }
+  .glow-amber-sm {
+    box-shadow: 0 0 12px var(--amber-glow);
+  }
+  .glow-red {
+    box-shadow: 0 0 24px hsl(0 80% 55% / 0.3);
+  }
+  .text-amber {
+    color: var(--amber);
+  }
+  .text-amber-dim {
+    color: var(--amber-dim);
+  }
+  .bg-card-elevated {
+    background: hsl(222 44% 9%);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+  }
+}
+
+/* ─── Scrollbar suppression ───────────────────────────────────────────────
+   Must live outside @layer — Chrome ignores ::-webkit-scrollbar overrides
+   inside CSS cascade layers.                                              */
+* {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE / Edge legacy */
+}
+*::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari / newer Edge */
+}

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- iOS PWA: use full-screen, no browser chrome -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Daily" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#060b14" />
+    <meta name="description" content="A ruthless personal accountability streak tracker." />
+
+    <!-- Prevent FOUC — force dark background before CSS loads -->
+    <style>
+      html, body { background: #060b14; margin: 0; }
+    </style>
+
+    <title>Daily</title>
+    <script type="module" src="./frontend.tsx" async></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
