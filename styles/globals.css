@@ -125,6 +125,9 @@
   input, textarea {
     -webkit-user-select: text;
     user-select: text;
+    /* Prevent iOS Safari from zooming in when an input is focused.
+       Safari zooms when font-size < 16px — this overrides any Tailwind text-sm. */
+    font-size: max(16px, 1em);
   }
 
 }

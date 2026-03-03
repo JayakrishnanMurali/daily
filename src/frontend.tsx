@@ -8,7 +8,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./router";
 import "./index.css";
 
-// Inject PWA manifest + favicon dynamically (Bun can't bundle absolute-path links in HTML)
+// Inject PWA / iOS links dynamically (Bun can't bundle absolute-path href attrs in HTML)
 const manifestLink = document.createElement("link");
 manifestLink.rel = "manifest";
 manifestLink.href = "/manifest.json";
@@ -19,6 +19,13 @@ faviconLink.rel = "icon";
 faviconLink.type = "image/svg+xml";
 faviconLink.href = "/favicon.svg";
 document.head.appendChild(faviconLink);
+
+// iOS homescreen icon — Safari ignores manifest icons and requires this explicit link tag
+const appleTouchIconLink = document.createElement("link");
+appleTouchIconLink.rel = "apple-touch-icon";
+appleTouchIconLink.setAttribute("sizes", "180x180");
+appleTouchIconLink.href = "/apple-touch-icon.png";
+document.head.appendChild(appleTouchIconLink);
 
 // Register PWA service worker — production only.
 // In dev mode, unregister any stale SW so HMR works correctly.

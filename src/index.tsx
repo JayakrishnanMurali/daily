@@ -23,6 +23,26 @@ const server = serve({
       },
     }),
 
+    // Serve PWA / iOS homescreen PNG icons
+    "/apple-touch-icon.png": new Response(await Bun.file("./public/apple-touch-icon.png").bytes(), {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400",
+      },
+    }),
+    "/icon-192.png": new Response(await Bun.file("./public/icon-192.png").bytes(), {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400",
+      },
+    }),
+    "/icon-512.png": new Response(await Bun.file("./public/icon-512.png").bytes(), {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400",
+      },
+    }),
+
     // Serve service worker
     "/sw.js": new Response(await Bun.file("./public/sw.js").text(), {
       headers: {

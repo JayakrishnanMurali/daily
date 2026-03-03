@@ -73,8 +73,6 @@ interface CosmeticItemCardProps {
   isEquipped: boolean;
   isOwned: boolean;
   canAfford: boolean;
-  onHoverStart: () => void;
-  onHoverEnd: () => void;
   onAction: () => void;
 }
 
@@ -86,8 +84,6 @@ function CosmeticItemCard({
   isEquipped,
   isOwned,
   canAfford,
-  onHoverStart,
-  onHoverEnd,
   onAction,
 }: CosmeticItemCardProps) {
   const borderColor = isEquipped
@@ -103,8 +99,6 @@ function CosmeticItemCard({
   return (
     <motion.button
       className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-colors relative ${borderColor} ${bgColor}`}
-      onPointerEnter={onHoverStart}
-      onPointerLeave={onHoverEnd}
       onClick={onAction}
       whileTap={{ scale: 0.95 }}
       initial={{ opacity: 0, y: 8 }}
@@ -231,16 +225,6 @@ export default function StorePage() {
   } = useAppStore();
 
   const [activeCategory, setActiveCategory] = useState<CosmeticCategory>("eyes");
-  const [hoverPreviewId, setHoverPreviewId] = useState<CosmeticId | null>(null);
-  const [hoverCategory, setHoverCategory] = useState<CosmeticCategory | null>(null);
-
-  // Build preview overrides from hover
-  const previewEyes      = hoverCategory === "eyes"      ? (hoverPreviewId ?? equippedEyes)      : equippedEyes;
-  const previewMouth     = hoverCategory === "mouth"     ? (hoverPreviewId ?? equippedMouth)     : equippedMouth;
-  const previewHair      = hoverCategory === "hair"      ? (hoverPreviewId ?? equippedHair)      : equippedHair;
-  const previewOutfit    = hoverCategory === "outfit"    ? (hoverPreviewId ?? equippedOutfit)    : equippedOutfit;
-  const previewHat       = hoverCategory === "hat"       ? (hoverPreviewId ?? equippedHat)       : equippedHat;
-  const previewAccessory = hoverCategory === "accessory" ? (hoverPreviewId ?? equippedAccessory) : equippedAccessory;
 
   const categoryItems = COSMETIC_DEFINITIONS.filter((d) => d.category === activeCategory);
 
@@ -303,7 +287,7 @@ export default function StorePage() {
         style={{ background: activeTabSceneGradient ?? "hsl(222 47% 6%)", border: "1px solid hsl(222 47% 12%)", minHeight: 200 }}
       >
         <motion.div
-          key={`${previewEyes}-${previewMouth}-${previewHair}-${previewOutfit}-${previewHat}-${previewAccessory}-${skinColor}`}
+          key={`${equippedEyes}-${equippedMouth}-${equippedHair}-${equippedOutfit}-${equippedHat}-${equippedAccessory}-${skinColor}`}
           initial={{ scale: 0.92, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.18, ease: "easeOut" }}
@@ -312,12 +296,12 @@ export default function StorePage() {
             mood="neutral"
             size={110}
             skinColor={skinColor}
-            equippedEyes={previewEyes}
-            equippedMouth={previewMouth}
-            equippedHair={previewHair}
-            equippedOutfit={previewOutfit}
-            equippedHat={previewHat}
-            equippedAccessory={previewAccessory}
+            equippedEyes={equippedEyes}
+            equippedMouth={equippedMouth}
+            equippedHair={equippedHair}
+            equippedOutfit={equippedOutfit}
+            equippedHat={equippedHat}
+            equippedAccessory={equippedAccessory}
           />
         </motion.div>
       </div>
@@ -383,14 +367,6 @@ export default function StorePage() {
                   isEquipped={isEquipped}
                   isOwned={isOwned}
                   canAfford={canAfford}
-                  onHoverStart={() => {
-                    setHoverPreviewId(item.id);
-                    setHoverCategory(item.category);
-                  }}
-                  onHoverEnd={() => {
-                    setHoverPreviewId(null);
-                    setHoverCategory(null);
-                  }}
                   onAction={() => handleItemAction(item.id, item.category, isOwned)}
                 />
               );
